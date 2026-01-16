@@ -41,6 +41,12 @@ mat4 perspective(float fov, float aspect,float near,float far);
 
 // ---------- Utility ----------
 
+mat4 ortho(
+    float left,float right,
+    float bottom,float top,
+    float near,float far
+);
+
 float *valuePtr(mat4 matrix);
 vec4 multiply(vec4 vector, mat4 matrix);
 float radians(float degrees);

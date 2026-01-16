@@ -171,6 +171,21 @@ mat4 perspective(float fov, float aspect,float near,float far){
     return result;
 }
 
+mat4 ortho(
+    float left,float right,
+    float bottom,float top,
+    float near,float far
+){
+    mat4 matrix = {0};
+
+    matrix.s1 = Vector4Constructor( 2/(right-left), 0, 0, -(right+left)/(right-left));
+    matrix.s2 = Vector4Constructor( 0, 2/(top-bottom), 0, -(top+bottom)/(top-bottom));
+    matrix.s3 = Vector4Constructor( 0, 0, -2/(far-near), -(far+near)/(far-near));
+    matrix.s4 = Vector4Constructor( 0,0,0,1 );
+
+    return matrix;
+}
+
 
 
 

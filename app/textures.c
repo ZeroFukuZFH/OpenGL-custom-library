@@ -29,16 +29,19 @@ Texture textureConstructor(const char* image){
 
     Texture t;
     t.use = use;
+    
+    
 
-    glGenTextures(1, &t.texture);
-    glBindTexture(GL_TEXTURE_2D,t.texture);
+    glGenTextures(1, &t.texture1);
+    glBindTexture(GL_TEXTURE_2D,t.texture1);
 
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.5f);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
 
@@ -47,6 +50,6 @@ Texture textureConstructor(const char* image){
 
 static void use(Texture *self){
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,self->texture);
+    glBindTexture(GL_TEXTURE_2D,self->texture1);
 }
 

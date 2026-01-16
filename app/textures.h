@@ -2,7 +2,7 @@
 #define TEXTURES_H
 
 typedef struct Textures {
-    unsigned int texture;
+    unsigned int texture1;
     void(*use)(struct Textures *self);
 }Texture;
 

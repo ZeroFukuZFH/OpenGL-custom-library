@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "shaders.h"
+#include "glm.h"
 
 // checker methods
 static void checkShaderCompilation(unsigned int shader, const char *shader_name);
@@ -17,6 +18,7 @@ static void delete(Shader *self);
 static void setBool(Shader *self,const char* name,bool value);
 static void setInt(Shader *self,const char* name,int value);
 static void setFloat(Shader *self,const char* name, float value);
+static void setMat4(Shader *self, const char* name,mat4 matrix);
 
 Shader shaderConstructor(const char* vertexPath, const char* fragmentPath){
     
@@ -102,11 +104,23 @@ Shader shaderConstructor(const char* vertexPath, const char* fragmentPath){
     s.setBool = setBool;
     s.setFloat = setFloat;
     s.setInt = setInt;
+    s.setMat4 = setMat4;
     return s;
 }
 
 static void use(Shader *self){
     glUseProgram(self->ID);
+    self->setInt(self, "texture1", 0); // wall
+    //self->setInt(self, "texture2", 1); // decal
+}
+
+static void setMat4(Shader *self, const char* name,mat4 matrix){
+    float *value_ptr = valuePtr(matrix);
+    glUniformMatrix4fv(
+        glGetUniformLocation(self->ID,name),
+        1, GL_FALSE, value_ptr
+    );
+    free(value_ptr);
 }
 
 static void setBool(Shader *self,const char* name, bool value) {
