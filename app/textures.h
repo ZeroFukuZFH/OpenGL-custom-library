@@ -2,11 +2,12 @@
 #define TEXTURES_H
 
 typedef struct Textures {
-    unsigned int texture1;
+    unsigned int len_of_texture_array;
+    unsigned int *texture;
     void(*use)(struct Textures *self);
 }Texture;
 
-Texture textureConstructor(const char* image);
+Texture textureConstructor(const char** image, unsigned int len_of_img_arr);
 
 #endif
 

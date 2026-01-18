@@ -47,8 +47,18 @@ mat4 ortho(
     float near,float far
 );
 
+
 float *valuePtr(mat4 matrix);
 vec4 multiply(vec4 vector, mat4 matrix);
+float dot(vec3 a, vec3 b);
+vec3 vec3_sub(vec3 a, vec3 b);
+vec3 add(vec3 a, vec3 b);
+vec3 minus(vec3 a, vec3 b);
+vec3 scaleV(vec3 v, float s);
+vec3 normalize(vec3 n);
+vec3 cross(vec3 a, vec3 b);
+mat4 lookAt(vec3 eye, vec3 center, vec3 up);
+
 float radians(float degrees);
 
 #endif

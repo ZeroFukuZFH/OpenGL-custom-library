@@ -2,27 +2,94 @@
 #include <stdlib.h>
 
 vec3 Vector3Constructor(float x, float y, float z){
-    vec3 vector = {x,y,z};
-    return vector;
+    return (vec3){x,y,z};
 }
 
 vec4 Vector4Constructor(float x, float y, float z, float w){
-    vec4 vector = {x,y,z,w};
-    return vector;
+    return (vec4){x,y,z,w};
+}
+
+vec3 minus(vec3 a, vec3 b){
+    return(vec3){
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z
+    };
+}
+
+vec3 add(vec3 a, vec3 b){
+    return(vec3){
+        a.x + b.x,
+        a.y + b.y,
+        a.z + b.z
+    };
+}
+
+vec3 scaleV(vec3 v, float s){
+    return (vec3){
+        v.x * s,
+        v.y * s,
+        v.z * s
+    };
+}
+
+vec3 cross(vec3 a, vec3 b){
+    vec3 result;
+    result.x = a.y * b.z - a.z * b.y;
+    result.y = a.z * b.x - a.x * b.z;
+    result.z = a.x * b.y - a.y * b.x;
+    return result;
+}
+
+vec3 normalize(vec3 n){
+    float magnitude = sqrt(
+        pow((double)n.x,2) + 
+        pow((double)n.y,2) + 
+        pow((double)n.z,2)
+    );
+
+    return(vec3){
+        n.x / magnitude,
+        n.y / magnitude,
+        n.z / magnitude
+    };
+}
+
+vec3 vec3_sub(vec3 a, vec3 b) {
+    return (vec3){a.x - b.x, a.y - b.y, a.z - b.z};
+}
+
+mat4 lookAt(vec3 eye, vec3 center, vec3 up){
+    vec3 f = normalize(vec3_sub(center, eye));  // forward
+    vec3 s = normalize(cross(f, up));           // right
+    vec3 u = cross(s, f);                       // corrected up
+
+    mat4 result = {0};
+
+    // Column-major order for OpenGL
+    result.s1 = (vec4){ s.x,  u.x, -f.x, 0.0f };
+    result.s2 = (vec4){ s.y,  u.y, -f.y, 0.0f };
+    result.s3 = (vec4){ s.z,  u.z, -f.z, 0.0f };
+    result.s4 = (vec4){ -dot(s, eye), -dot(u, eye), dot(f, eye), 1.0f };
+
+    return result;
+}
+
+float dot(vec3 a, vec3 b) {
+    return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
 mat4 MatrixConstructorDiagonal(float diagonal){
-    mat4 matrix;
-    matrix.s1 = Vector4Constructor(diagonal,0,0,0);
-    matrix.s2 = Vector4Constructor(0,diagonal,0,0);
-    matrix.s3 = Vector4Constructor(0,0,diagonal,0);
-    matrix.s4 = Vector4Constructor(0,0,0,diagonal);
-    return matrix;
+    return (mat4){
+        {diagonal,0,0,0},
+        {0,diagonal,0,0},
+        {0,0,diagonal,0},
+        {0,0,0,diagonal}
+    };
 }
 
-mat4 MaanytrixConstructor(vec4 s1,vec4 s2,vec4 s3,vec4 s4){
-    mat4 m = {s1,s2,s3,s4};
-    return m;
+mat4 MatrixConstructor(vec4 s1,vec4 s2,vec4 s3,vec4 s4){
+    return (mat4){s1,s2,s3,s4};
 }
 
 mat4 translate(mat4 matrix, vec3 vector){

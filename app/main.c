@@ -4,22 +4,32 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+
 #include "shaders.h"
 #include "textures.h"
 #include "glm.h"
 #include "object.h"
+#include "camera.h"
 
-// to resize viewport during resize
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+void processInput(GLFWwindow *window);
 
-// escape key close
-void processInput(GLFWwindow *window, float *control_x , float *control_y );
+// camera
+Camera camera;
+float last_x = 800 / 2.0f;
+float last_y = 600 / 2.0f;
+bool first_mouse = true;
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+// timing
+float delta_time = 0.0f;
+float last_frame = 0.0f;
 
-int main(void){
-    if(!glfwInit()){
-        perror("Failed to initialize GLFW library");
+int main(void) {
+
+    if (!glfwInit()) {
+        perror("Failed to initialize GLFW");
         return -1;
     }
 
@@ -27,155 +37,159 @@ int main(void){
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Required for macOS
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
 
-    GLFWwindow *main_window = glfwCreateWindow(600,400,"hello world",NULL,NULL);
-
-    if(main_window == NULL){
+    GLFWwindow *window = glfwCreateWindow(800, 600, "FPS Camera Demo", NULL, NULL);
+    if (!window) {
+        perror("Failed to create GLFW window");
         glfwTerminate();
-        perror("Failed to create GLFW window!");
         return -1;
     }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    glfwMakeContextCurrent(main_window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        perror("Failed to initialize GLAD\n");
+        perror("Failed to initialize GLAD");
         return -1;
     }
 
     glEnable(GL_DEPTH_TEST);
 
+    camera = CameraConstructor(
+        (vec3){0.0f, 0.0f, 3.0f},
+        (vec3){0.0f, 1.0f, 0.0f},
+        YAW, PITCH, SPEED, SENSITIVITY, ZOOM
+    );
+
         float vertices[] = {
-        // positions        // texcoords
+        // positions         // texcoords
         // front
-        -0.5f,-0.5f, 0.5f, 0.0f,0.0f,
-        0.5f,-0.5f, 0.5f, 1.0f,0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f,1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f,1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
 
         // back
-        -0.5f,-0.5f,-0.5f, 0.0f,0.0f,
-        0.5f,-0.5f,-0.5f, 1.0f,0.0f,
-        0.5f, 0.5f,-0.5f, 1.0f,1.0f,
-        -0.5f, 0.5f,-0.5f, 0.0f,1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
 
         // left
-        -0.5f,-0.5f,-0.5f, 0.0f,0.0f,
-        -0.5f, 0.5f,-0.5f, 1.0f,0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f,1.0f,
-        -0.5f,-0.5f, 0.5f, 0.0f,1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
 
         // right
-        0.5f,-0.5f,-0.5f, 0.0f,0.0f,
-        0.5f, 0.5f,-0.5f, 1.0f,0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f,1.0f,
-        0.5f,-0.5f, 0.5f, 0.0f,1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
 
         // bottom
-        -0.5f,-0.5f,-0.5f, 0.0f,0.0f,
-        0.5f,-0.5f,-0.5f, 1.0f,0.0f,
-        0.5f,-0.5f, 0.5f, 1.0f,1.0f,
-        -0.5f,-0.5f, 0.5f, 0.0f,1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
 
         // top
-        -0.5f, 0.5f,-0.5f, 0.0f,0.0f,
-        0.5f, 0.5f,-0.5f, 1.0f,0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f,1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f,1.0f
+        -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f
     };
 
     unsigned int indices[] = {
-        0,1,2, 2,3,0,       // front
-        4,5,6, 6,7,4,       // back
-        8,9,10,10,11,8,     // left
-        12,13,14,14,15,12, // right
-        16,17,18,18,19,16, // bottom
-        20,21,22,22,23,20  // top
+        // front
+        0, 1, 2,  2, 3, 0,
+        // back
+        4, 5, 6,  6, 7, 4,
+        // left
+        8, 9,10, 10,11, 8,
+        // right
+        12,13,14, 14,15,12,
+            // bottom
+        16,17,18, 18,19,16,
+            // top
+        20,21,22, 22,23,20
     };
 
-    Object obj1 = ObjectConstructor(
-        vertices,sizeof(vertices),
+    const char *textures[] = { "container.jpg", "Awesome_Face.png" };
+
+    Object obj = ObjectConstructor(
+        vertices, sizeof(vertices),
         indices, sizeof(indices),
         shaderConstructor("shaders/shader.vs", "shaders/shader.fs"),
-        textureConstructor("container.jpg")
+        textureConstructor(textures, sizeof(textures)/sizeof(textures[0]))
     );
 
-    // UNCOMMENT : if need to convert to wireframe
-    // -------------------------------------------
-    //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-
-    float control_x = -1.0f;
-    float control_y = -1.0f;
-    float rotation = -1.0f;
-
-    /* REGISTER CALLBACKS ONCE */
-    glfwSetWindowUserPointer(main_window, &rotation);
-    glfwSetScrollCallback(main_window, scroll_callback);
-    glfwSetFramebufferSizeCallback(main_window, framebuffer_size_callback);
-
-    while (!glfwWindowShouldClose(main_window)){
-        // inputs
-        processInput(main_window, &control_x, &control_y);
+    while (!glfwWindowShouldClose(window)) {
+        float current_frame = glfwGetTime();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
         
-        // bg-color/
-        glClearColor(0.2f,0.3f,0.3f,1.0f);
+        processInput(window);
+
+        glClearColor(-1.0f, -1.0f, -1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // render triangle / object
 
-        obj1.draw(&obj1, control_x, control_y, rotation);
+        obj.use(&obj);
+        
+        obj.draw(&obj, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f);
 
-        // GPU stuff
-        glfwSwapBuffers(main_window);
+        glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // OPTIONAL : DE-ALLOC AFTER USE 
-    // -----------------------------
-    obj1.destroy(&obj1);
-
-    // close window
+    obj.destroy(&obj);
     glfwTerminate();
     return 0;
 }
 
+void mouse_callback(GLFWwindow *window, double xpos, double ypos){
+    
+    float x_pos = (float)xpos;
+    float y_pos = (float)ypos;
+
+    if(first_mouse){
+        last_x = x_pos;
+        last_y = y_pos;
+        first_mouse = false;
+    }
+
+    float xoffset = x_pos - last_x;
+    float yoffset = last_y - y_pos;
+
+    last_x = x_pos;
+    last_y = y_pos;
+
+    camera.ProcessMouseMovement(&camera, xoffset, yoffset,true);
+
+}
+
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset){
+    camera.ProcessMouseScroll(&camera, (float)yoffset);
+}
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height){
-    glViewport(0,0,width,height);
+    glViewport(0, 0, width, height);
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
-    float* control_y = (float*)glfwGetWindowUserPointer(window);
+void processInput(GLFWwindow *window){
 
-    if (control_y)
-    {
-        *control_y += (float)yoffset * 0.05f;
-    }
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(&camera, FORWARD, delta_time);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(&camera, BACKWARD, delta_time);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(&camera, LEFT, delta_time);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(&camera, RIGHT, delta_time);
 }
-
-void processInput(GLFWwindow *window, float *control_x, float *control_y){
-
-    if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS){
-        *control_y += 0.01f;
-        //printf("y : %f\n", *control_y);
-    }
-    if(glfwGetKey(window,GLFW_KEY_A) == GLFW_PRESS){
-        *control_x -= 0.01f;
-        //printf("x : %f\n", *control_x);
-    }
-    if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS){
-        *control_y -= 0.01f;
-        //printf("y : %f\n", *control_y);
-    }
-    if(glfwGetKey(window,GLFW_KEY_D) == GLFW_PRESS){
-        *control_x += 0.01f;
-        //printf("x : %f\n", *control_x);
-    }
-    
-    if(glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS){
-        printf("Escape key has been pressed!\n");
-        glfwSetWindowShouldClose(window,true);
-    }
-    
-}   
 

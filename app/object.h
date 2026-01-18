@@ -41,7 +41,8 @@ typedef struct Object {
     Shader shaders;
     Texture textures;
 
-    void (*draw)(struct Object *self,float x, float y, float rotation);
+    void (*use)(struct Object *self);     
+    void (*draw)(struct Object *self,float x, float y, float z, float rotation_x, float rotation_y);
     void (*destroy)(struct Object *self);      
 } Object;
 
