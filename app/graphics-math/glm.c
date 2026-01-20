@@ -25,11 +25,19 @@ vec3 add(vec3 a, vec3 b){
     };
 }
 
-vec3 scaleV(vec3 v, float s){
+vec3 scaleV3f(vec3 v, float s){
     return (vec3){
         v.x * s,
         v.y * s,
         v.z * s
+    };
+}
+
+vec3 scaleV3V3(vec3 a, vec3 b){
+    return (vec3){
+        a.x * b.z,
+        a.y * b.z,
+        a.z * b.z
     };
 }
 

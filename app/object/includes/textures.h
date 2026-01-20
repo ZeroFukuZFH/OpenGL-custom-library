@@ -7,7 +7,7 @@ typedef struct Textures {
     void(*use)(struct Textures *self);
 }Texture;
 
-Texture textureConstructor(const char** image, unsigned int len_of_img_arr);
+Texture TextureConstructor(const char** image, unsigned int len_of_img_arr);
 
 #endif
 

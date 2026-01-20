@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "glm.h"
+#include "../../graphics-math/glm.h"
 typedef struct Shader {
     unsigned int ID;
     void(*use)(struct Shader *self);
@@ -15,6 +15,7 @@ typedef struct Shader {
     void(*setInt)(struct Shader *self,const char* name, int value);
     void(*setFloat)(struct Shader *self,const char* name, float value);
     void(*setMat4)(struct Shader *self, const char* name,mat4 matrix);
+    void(*setVec3)(struct Shader *self, const char*name, vec3 vector);
 }Shader;
 
 Shader shaderConstructor(const char* vertexPath, const char* fragmentPath);

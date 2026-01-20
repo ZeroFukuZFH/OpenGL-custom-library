@@ -44,32 +44,31 @@ static void ProcessKeyboard(Camera *self, Camera_Movement direction, float delta
     if (direction == FORWARD) {
         self->position = add(
             self->position,
-            scaleV(self->front, velocity)
+            scaleV3f(self->front, velocity)
         );
     }
 
     if (direction == BACKWARD) {
         self->position = minus(
             self->position,
-            scaleV(self->front, velocity)
+            scaleV3f(self->front, velocity)
         );
     }
 
     if (direction == LEFT) {
         self->position = minus(
             self->position,
-            scaleV(self->right, velocity)
+            scaleV3f(self->right, velocity)
         );
     }
 
     if (direction == RIGHT) {
         self->position = add(
             self->position,
-            scaleV(self->right, velocity)
+            scaleV3f(self->right, velocity)
         );
     }
 }
-
 
 static void ProcessMouseMovement(Camera *self, float x_offset, float y_offset, GLboolean constrain_pitch){
     x_offset *= self->mouse_sensitivity;

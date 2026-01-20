@@ -9,7 +9,7 @@
 
 static void use(Texture *self);
 
-Texture textureConstructor(const char** image,unsigned int len_of_img_arr){
+Texture TextureConstructor(const char** image,unsigned int len_of_img_arr){
 
     int width;
     int height; 
@@ -30,7 +30,7 @@ Texture textureConstructor(const char** image,unsigned int len_of_img_arr){
 
         unsigned char *data = stbi_load(filename, &width, &height,&nrChannels,0);
         if(data == NULL){
-            perror("Failed to load texture");
+            perror("Failed to load Texture");
             exit(1);
         }
 
@@ -40,10 +40,10 @@ Texture textureConstructor(const char** image,unsigned int len_of_img_arr){
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.5f);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data);
     }

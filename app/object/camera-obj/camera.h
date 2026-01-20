@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include <stdbool.h>
-#include "glm.h"
+#include "../../graphics-math/glm.h"
 
 typedef enum Camera_Movement {
     FORWARD,

@@ -5,16 +5,26 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "shaders.h"
-#include "textures.h"
-#include "glm.h"
-#include "object.h"
-#include "camera.h"
+#include "graphics-math/glm.h"
+#include "object/color-obj/object.h"
+#include "object/camera-obj/camera.h"
+#include "object/light-obj/light.h"
+#include "object/texture-obj/texture.h"
 
+#include "object/includes/shaders.h"
+#include "object/includes/textures.h"
+
+#include "3D-obj-data/cube.h"
+
+GLFWwindow *initEngine(unsigned int width, unsigned int height, const char *title);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+
+
+// MACROS
+// ------
 
 // camera
 Camera camera;
@@ -26,34 +36,12 @@ bool first_mouse = true;
 float delta_time = 0.0f;
 float last_frame = 0.0f;
 
+// light
+vec3 light_color = {1.0f, 1.0f,1.0f};
+
 int main(void) {
 
-    if (!glfwInit()) {
-        perror("Failed to initialize GLFW");
-        return -1;
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    #ifdef __APPLE__
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #endif
-
-    GLFWwindow *window = glfwCreateWindow(800, 600, "FPS Camera Demo", NULL, NULL);
-    if (!window) {
-        perror("Failed to create GLFW window");
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        perror("Failed to initialize GLAD");
-        return -1;
-    }
+    GLFWwindow *window = initEngine(800,600,"hello world");
 
     glEnable(GL_DEPTH_TEST);
 
@@ -63,68 +51,21 @@ int main(void) {
         YAW, PITCH, SPEED, SENSITIVITY, ZOOM
     );
 
-        float vertices[] = {
-        // positions         // texcoords
-        // front
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    const char *textures[] = { "object/texture/container.jpg", "object/texture/Awesome_Face.png" };
 
-        // back
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-
-        // left
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-
-        // right
-        0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-
-        // bottom
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-
-        // top
-        -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f
-    };
-
-    unsigned int indices[] = {
-        // front
-        0, 1, 2,  2, 3, 0,
-        // back
-        4, 5, 6,  6, 7, 4,
-        // left
-        8, 9,10, 10,11, 8,
-        // right
-        12,13,14, 14,15,12,
-            // bottom
-        16,17,18, 18,19,16,
-            // top
-        20,21,22, 22,23,20
-    };
-
-    const char *textures[] = { "container.jpg", "Awesome_Face.png" };
-
-    Object obj = ObjectConstructor(
-        vertices, sizeof(vertices),
-        indices, sizeof(indices),
-        shaderConstructor("shaders/shader.vs", "shaders/shader.fs"),
-        textureConstructor(textures, sizeof(textures)/sizeof(textures[0]))
+    Object obj = ObjectConstructor(CUBE, sizeof(CUBE_WITH_TEXTURE),CUBE_DATA, sizeof(CUBE_DATA));
+    
+    Light light = LightConstructor(CUBE, sizeof(CUBE),CUBE_DATA, sizeof(CUBE_DATA));
+    
+    Textured texturedObj = TexturedConstructor(
+        CUBE_WITH_TEXTURE, sizeof(CUBE_WITH_TEXTURE),CUBE_DATA, sizeof(CUBE_DATA),
+        shaderConstructor("object/shaders/texture.vs","object/shaders/texture.fs"),
+        TextureConstructor(textures,sizeof(textures)/sizeof(textures[0]))
     );
+
+    // DISABLE ANYTIME -- WIREFRAME MODE
+    // ---------------------------------
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!glfwWindowShouldClose(window)) {
         float current_frame = glfwGetTime();
@@ -133,18 +74,39 @@ int main(void) {
         
         processInput(window);
 
-        glClearColor(-1.0f, -1.0f, -1.0f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        obj.use(&obj);
         
-        obj.draw(&obj, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f);
+        // Draw lit object
+        obj.draw(&obj, &camera,
+                (vec3){2.0f, 2.0f, 2.0f}, // size
+                (vec3){0.0f, 0.0f, 0.0f},  // Position
+                (vec2){current_frame * 10, current_frame * 10}, // Rotation
+                light_color,                // Light color (white)
+                (vec3){1.0f, 0.5f, 0.31f}); // Object color (orange)
+        
+        // Draw light cube (smaller, at light position)
+        light.draw(&light, &camera,
+                (vec3){1.0f, 1.0f, 1.0f}, // size
+                (vec3){3.0f, 0.0f, 0.0f},// Position at light source
+                (vec2){0.0f, 0.0f},   // No rotation
+                light_color,          // Emissive color
+                light_color);   
+
+        texturedObj.draw(&texturedObj,&camera,
+                (vec3){2.0f, 2.0f, 2.0f}, // size
+                (vec3){6.0f, 0.0f, 0.0f},  // Position
+                (vec2){current_frame * 10, current_frame * 10}, // Rotation
+                light_color);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    light.destroy(&light);
+    texturedObj.destroy(&texturedObj);
     obj.destroy(&obj);
+
     glfwTerminate();
     return 0;
 }
@@ -193,3 +155,39 @@ void processInput(GLFWwindow *window){
         camera.ProcessKeyboard(&camera, RIGHT, delta_time);
 }
 
+GLFWwindow *initEngine(unsigned int width, unsigned int height, const char *title){
+    
+    if (!glfwInit()) {
+        perror("Failed to initialize GLFW");
+        exit(1);
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
+
+    GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
+    if (!window) {
+        perror("Failed to create GLFW window");
+        glfwTerminate();
+        exit(1);
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    // DISABLE ANYTIME - HIDES CURSOR
+    // ------------------------------
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        perror("Failed to initialize GLAD");
+        exit(1);
+    }
+
+    return window;
+}

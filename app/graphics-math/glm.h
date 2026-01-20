@@ -5,6 +5,10 @@
 
 #define PI 3.14159265359
 
+typedef struct Vector2 {
+    float x;
+    float y;
+} vec2;
 typedef struct Vector3 {
     float x;
     float y;
@@ -54,7 +58,8 @@ float dot(vec3 a, vec3 b);
 vec3 vec3_sub(vec3 a, vec3 b);
 vec3 add(vec3 a, vec3 b);
 vec3 minus(vec3 a, vec3 b);
-vec3 scaleV(vec3 v, float s);
+vec3 scaleV3f(vec3 v, float s);
+vec3 scaleV3V3(vec3 a, vec3 b);
 vec3 normalize(vec3 n);
 vec3 cross(vec3 a, vec3 b);
 mat4 lookAt(vec3 eye, vec3 center, vec3 up);

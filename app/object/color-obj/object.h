@@ -3,33 +3,11 @@
 
 #include <glad/glad.h>
 #include <stddef.h>   // for size_t
-#include "shaders.h"
-#include "textures.h"
-#include "glm.h"
+#include "../includes/shaders.h"
+#include "../includes/textures.h"
+#include "../../graphics-math/glm.h"
+#include "../camera-obj/camera.h"
 #include <stdint.h>
-
-typedef struct Color {
-    u_int8_t R;
-    u_int8_t G;
-    u_int8_t B;
-    u_int8_t A;
-} Color;
-
-/**
- * Color struct with RGBA values.
- *
- * @param R - Red 0 to 255
- * @param G - Green 0 to 255
- * @param B - Blue 0 to 255
- * @param A - Alpha 0 to 255
-*/
-
-Color ColorConstructor(
-    u_int8_t R,
-    u_int8_t G,
-    u_int8_t B,
-    u_int8_t A
-);
 typedef struct Object {
 
     unsigned int VAO;
@@ -39,10 +17,8 @@ typedef struct Object {
     unsigned int transform_location;
 
     Shader shaders;
-    Texture textures;
 
-    void (*use)(struct Object *self);     
-    void (*draw)(struct Object *self,float x, float y, float z, float rotation_x, float rotation_y);
+    void (*draw)(struct Object *self,Camera *camera, vec3 size, vec3 pos, vec2 rotation, vec3 light, vec3 obj_color);
     void (*destroy)(struct Object *self);      
 } Object;
 
@@ -58,9 +34,7 @@ typedef struct Object {
 
 Object ObjectConstructor(
     float *vertices, size_t vertex_size,
-    unsigned int *indices, size_t index_size,
-    Shader shaders,
-    Texture textures
+    unsigned int *indices, size_t index_size
 );
 
 #endif // OBJECT_H
