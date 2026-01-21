@@ -13,12 +13,17 @@
                 "-I${workspaceFolder}/dependencies/include",
                 "-L${workspaceFolder}/dependencies/library",
 				"${workspaceFolder}/app/glad.c",
-                "${workspaceFolder}/app/shaders.c",
-                "${workspaceFolder}/app/textures.c",
-                "${workspaceFolder}/app/object.c",
-                "${workspaceFolder}/app/glm.c",
+                "${workspaceFolder}/app/object/color-obj/object.c",
+                "${workspaceFolder}/app/object/light-obj/light.c",
+                "${workspaceFolder}/app/object/texture-obj/texture.c",
+                "${workspaceFolder}/app/graphics-math/glm.c",
+                "${workspaceFolder}/app/list-to-array/LtoA.c",
+                "${workspaceFolder}/app/object/camera-obj/camera.c",
+                "${workspaceFolder}/app/object/includes/shaders.c",
+                "${workspaceFolder}/app/object/includes/textures.c",
+                "${workspaceFolder}/app/main.c",
+                "${workspaceFolder}/app/color.c",
                 "${workspaceFolder}/dependencies/library/libglfw.3.4.dylib",
-                "${file}", 
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-framework", "OpenGL",
@@ -29,7 +34,7 @@
                 "-Wno-deprecated"
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
                 "$gcc"
