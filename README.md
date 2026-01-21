@@ -18,3 +18,17 @@ meant to parse C++ code. luckily, actual implementation code can be written with
 just C so that made it possible and easier for me to just not learn C++ (god i hate
 that language so much with a passion)
 
+## How to use
+
+on vscode : 
+
+open main.c (in app folder)
+
+ctrl + shift + b (windows)
+cmd + shift + b (mac)
+
+commands : 
+
+cd app 
+./main 
+
