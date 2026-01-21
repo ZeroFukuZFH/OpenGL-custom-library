@@ -80,7 +80,7 @@ int main(void) {
         // Draw lit object
         obj.draw(&obj, &camera,
                 (vec3){2.0f, 2.0f, 2.0f}, // size
-                (vec3){0.0f, 0.0f, 0.0f},  // Position
+                (vec3){0 + cos(current_frame) * 8, 0 + sin(current_frame) * 8, 0.0f},  // Position
                 (vec2){current_frame * 10, current_frame * 10}, // Rotation
                 light_color,                // Light color (white)
                 (vec3){1.0f, 0.5f, 0.31f}); // Object color (orange)
@@ -98,6 +98,7 @@ int main(void) {
                 (vec3){6.0f, 0.0f, 0.0f},  // Position
                 (vec2){current_frame * 10, current_frame * 10}, // Rotation
                 light_color);
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
