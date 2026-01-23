@@ -2,10 +2,26 @@
 #include <GLFW/glfw3.h>
 #include "light.h"
 #include "../../graphics-math/glm.h"
+#include "../../properties.h"
 #include "../includes/shaders.h"
 #include <stdint.h>
 
-static void draw(Light *self,Camera *camera, vec3 size, vec3 pos, vec2 rotation, vec3 light, vec3 light_color);
+static void setScale(struct Light *self, vec3 size);
+static void setPosition(struct Light *self, vec3 position);
+static void setRotation(struct Light *self, vec2 rotation);
+
+static void setPosX(struct Light *self, float x);
+static void setPosY(struct Light *self, float y);
+static void setPosZ(struct Light *self, float z);
+
+static void setScaleX(struct Light *self, float x);
+static void setScaleY(struct Light *self, float y);
+static void setScaleZ(struct Light *self, float z);
+
+static void setRotationX(struct Light *self, float x);
+static void setRotationY(struct Light *self, float y);
+
+static void draw(Light *self,Camera *camera, vec3 light, vec3 light_color);
 static void destroy(Light *self);
 
 Light LightConstructor(
@@ -49,27 +65,40 @@ Light LightConstructor(
     light.shaders = shaderConstructor("object/shaders/light.vs", "object/shaders/light.fs");
     light.transform_location = glGetUniformLocation(light.shaders.ID, "transform");
     light.indices_count = index_size / sizeof(unsigned int);
+    
+    light.setScale = setScale;
+    light.setPosition = setPosition;
+    light.setRotation = setRotation;
+    light.setPosX = setPosX;
+    light.setPosY = setPosY;
+    light.setPosZ = setPosZ;
+    light.setScaleX = setScaleX;
+    light.setScaleY = setScaleY;
+    light.setScaleZ = setScaleZ;
+    light.setRotationX = setRotationX;
+    light.setRotationY = setRotationY;
+
     light.draw = draw;
     light.destroy = destroy;
 
     return light;
 }
 
-static void draw(Light *self, Camera* camera, vec3 size, vec3 pos, vec2 rotation, vec3 light, vec3 light_color) {
+static void draw(Light *self, Camera* camera, vec3 light, vec3 light_color) {
     self->shaders.use(&self->shaders);
     
     glBindVertexArray(self->VAO);
     
     // Get matrices from camera
-    mat4 projection = perspective(radians(camera->zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+    mat4 projection = perspective(radians(camera->zoom), (float)PROJECT_WINDOW_WIDTH/(float)PROJECT_WINDOW_HEIGHT, 0.1f, 100.0f);
     mat4 view = camera->GetViewMatrix4(camera);
     
     // Create model matrix
     mat4 model = MatrixConstructorDiagonal(1.0f);
-    model = translate(model, pos);
-    model = scale(model, size);
-    model = rotate(model, radians(rotation.x), (vec3){1.0f, 0.0f, 0.0f});
-    model = rotate(model, radians(rotation.y), (vec3){0.0f, 1.0f, 0.0f});
+    model = translate(model, (vec3){self->x,self->y,self->z});
+    model = scale(model, (vec3){self->sx, self->sy, self->sz});
+    model = rotate(model, radians(self->rx), (vec3){1.0f, 0.0f, 0.0f});
+    model = rotate(model, radians(self->ry), (vec3){0.0f, 1.0f, 0.0f});
     
     // Set matrices
     self->shaders.setMat4(&self->shaders, "projection", projection);
@@ -88,25 +117,43 @@ static void draw(Light *self, Camera* camera, vec3 size, vec3 pos, vec2 rotation
     self->shaders.setVec3(&self->shaders, "light.diffuse", diffuse);
     self->shaders.setVec3(&self->shaders, "light.specular", light);
     
-    // Material properties
-
-    /*
-    
-    self->shaders.setVec3(&self->shaders, "material.ambient", light_color);
-    self->shaders.setVec3(&self->shaders, "material.diffuse", light_color);
-    self->shaders.setVec3(&self->shaders, "material.specular", (vec3){0.5f, 0.5f, 0.5f});
-    self->shaders.setFloat(&self->shaders, "material.shininess", 32.0f);
-
-    */
     
     glDrawElements(GL_TRIANGLES, self->indices_count, GL_UNSIGNED_INT, 0);
 }
+
+static void setScale(struct Light *self, vec3 size) {
+    self->sx = size.x;
+    self->sy = size.y;
+    self->sz = size.z;
+}
+
+static void setPosition(struct Light *self, vec3 position) {
+    self->x = position.x;
+    self->y = position.y;
+    self->z = position.z;
+}
+
+static void setRotation(struct Light *self, vec2 rotation) {
+    self->rx = rotation.x;
+    self->ry = rotation.y;
+}
+
+static void setPosX(struct Light *self, float x) { self->x = x; }
+static void setPosY(struct Light *self, float y) { self->y = y; }
+static void setPosZ(struct Light *self, float z) { self->z = z; }
+
+static void setScaleX(struct Light *self, float x) { self->sx = x; }
+static void setScaleY(struct Light *self, float y) { self->sy = y; }
+static void setScaleZ(struct Light *self, float z) { self->sz = z; }
+
+static void setRotationX(struct Light *self, float x) { self->rx = x; }
+static void setRotationY(struct Light *self, float y) { self->ry = y; }
 
 static void destroy(Light *self){
     glDeleteVertexArrays(1,&self->VAO);
     glDeleteBuffers(1,&self->VBO);
     glDeleteBuffers(1,&self->EBO);
-    self->shaders.delete(&self->shaders);
+    self->shaders.destroy(&self->shaders);
     self->VAO = 0;
     self->VBO = 0;
     self->EBO = 0;

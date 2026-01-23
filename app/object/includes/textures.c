@@ -11,15 +11,20 @@ static void use(Texture *self);
 
 Texture TextureConstructor(const char** image,unsigned int len_of_img_arr){
 
+    Texture t;
+    t.use = use;
+    t.len_of_texture_array = len_of_img_arr;
+    
+    if(len_of_img_arr == 0){
+        return t;
+    }
+
     int width;
     int height; 
     int nrChannels;
     
-    Texture t;
-    t.use = use;
-
     t.texture = (unsigned int *)malloc(sizeof(unsigned int) * len_of_img_arr);
-    t.len_of_texture_array = len_of_img_arr;
+    
 
     for(int item = 0; item < len_of_img_arr; item++){
         const char *filename = image[item];
@@ -51,6 +56,7 @@ Texture TextureConstructor(const char** image,unsigned int len_of_img_arr){
 }
 
 static void use(Texture *self){
+    if(self->len_of_texture_array == 0) return;
     for(int item = 0; item < self->len_of_texture_array; item++){
         glActiveTexture(GL_TEXTURE0 + item);
         glBindTexture(GL_TEXTURE_2D,self->texture[item]);

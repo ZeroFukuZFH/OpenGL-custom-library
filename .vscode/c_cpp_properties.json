@@ -5,9 +5,21 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/dependencies/include",
-                "/opt/homebrew/include"
+                "/opt/homebrew/include/**",
+                "/opt/homebrew/opt/libtiff/include",
+                "/opt/homebrew/opt/zstd/include",
+                "/opt/homebrew/Cellar/xz/5.8.2/include",
+                "/opt/homebrew/opt/jpeg-turbo/include",
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+                "/opt/homebrew/opt/gettext/include",
+                "/opt/homebrew/Cellar/pcre2/10.47/include"
             ],
             "defines": [],
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
             "cppStandard": "c++14",
             "intelliSenseMode": "macos-clang-arm64"

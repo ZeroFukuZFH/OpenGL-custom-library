@@ -72,7 +72,7 @@ mat4 lookAt(vec3 eye, vec3 center, vec3 up){
     vec3 s = normalize(cross(f, up));           // right
     vec3 u = cross(s, f);                       // corrected up
 
-    mat4 result = {0};
+    mat4 result = {{0}};
 
     // Column-major order for OpenGL
     result.s1 = (vec4){ s.x,  u.x, -f.x, 0.0f };
@@ -203,7 +203,7 @@ mat4 rotate(mat4 matrix, float angle, vec3 vector){
 }
 
 float* valuePtr(mat4 matrix){
-    float* arr = malloc(sizeof(float) * 16);
+    float* arr = (float*)malloc(sizeof(float) * 16);
     if (!arr) return NULL;
 
     arr[0]  = matrix.s1.x; arr[1]  = matrix.s1.y; arr[2]  = matrix.s1.z; arr[3]  = matrix.s1.w;
@@ -215,7 +215,7 @@ float* valuePtr(mat4 matrix){
 }
 
 mat4 perspective(float fov, float aspect,float near,float far){
-    mat4 result = {0};
+    mat4 result = {{0}};
 
     float f = 1.0f / tanf(fov / 2.0f);
     
@@ -251,7 +251,7 @@ mat4 ortho(
     float bottom,float top,
     float near,float far
 ){
-    mat4 matrix = {0};
+    mat4 matrix = {{0}};
 
     matrix.s1 = Vector4Constructor( 2/(right-left), 0, 0, -(right+left)/(right-left));
     matrix.s2 = Vector4Constructor( 0, 2/(top-bottom), 0, -(top+bottom)/(top-bottom));

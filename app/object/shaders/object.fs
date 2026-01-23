@@ -18,13 +18,15 @@ struct Light {
 
 in vec3 FragPos;  
 in vec3 Normal;  
-  
+in vec2 TexCoords;
+
 uniform vec3 viewPos;
 uniform Material material;
 uniform Light light;
 
 void main()
 {
+
     // ambient
     vec3 ambient = light.ambient * material.ambient;
   	
@@ -43,3 +45,4 @@ void main()
     vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0);
 } 
+

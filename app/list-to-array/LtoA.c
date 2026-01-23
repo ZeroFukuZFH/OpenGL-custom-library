@@ -16,8 +16,6 @@ List ListConstructor(float *array, int size){
     list.head = NULL;
 
     if(array == NULL) return list;
-    
-    unsigned int curr_index = 0;
 
     for (int i = 0; i < size; i++) {
         list.push(&list, array[i]);

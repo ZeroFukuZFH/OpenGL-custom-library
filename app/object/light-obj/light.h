@@ -16,9 +16,28 @@ typedef struct Light {
     unsigned int indices_count;
     unsigned int transform_location;
 
+    float x,y,z;
+    float rx, ry;
+    float sx, sy, sz;
+    
     Shader shaders;
 
-    void (*draw)(struct Light *self,Camera *camera, vec3 size, vec3 pos, vec2 rotation, vec3 light, vec3 light_color);
+    void (*setScale)(struct Light *self, vec3 size);
+    void (*setPosition)(struct Light *self, vec3 position);
+    void (*setRotation)(struct Light *self, vec2 rotation);
+
+    void (*setPosX)(struct Light *self, float x);
+    void (*setPosY)(struct Light *self, float y);
+    void (*setPosZ)(struct Light *self, float z);
+
+    void (*setScaleX)(struct Light *self, float x);
+    void (*setScaleY)(struct Light *self, float y);
+    void (*setScaleZ)(struct Light *self, float z);
+
+    void (*setRotationX)(struct Light *self, float x);
+    void (*setRotationY)(struct Light *self, float y);
+    
+    void (*draw)(struct Light *self,Camera *camera, vec3 light, vec3 light_color);
     void (*destroy)(struct Light *self);      
 } Light;
 

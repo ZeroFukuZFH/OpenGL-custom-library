@@ -14,7 +14,7 @@ static void checkProgramCompilation(unsigned int program);
 
 // shader methods
 static void use(struct Shader *self);
-static void delete(Shader *self);
+static void destroy(Shader *self);
 static void setBool(Shader *self,const char* name,bool value);
 static void setInt(Shader *self,const char* name,int value);
 static void setFloat(Shader *self,const char* name, float value);
@@ -47,8 +47,8 @@ Shader shaderConstructor(const char* vertexPath, const char* fragmentPath){
     long fragmentLength = ftell(fragmentShaderFile);
     rewind(fragmentShaderFile);
 
-    char *vertexCode = malloc(vertexLength + 1);
-    char *fragmentCode = malloc(fragmentLength + 1);
+    char *vertexCode = (char*)malloc(vertexLength + 1);
+    char *fragmentCode = (char*)malloc(fragmentLength + 1);
 
     if (!vertexCode || !fragmentCode) {
         printf("Memory allocation failed\n");
@@ -101,7 +101,7 @@ Shader shaderConstructor(const char* vertexPath, const char* fragmentPath){
 
     // BIND FUNCTIONS
     s.use = use;
-    s.delete = delete;
+    s.destroy = destroy;
     s.setBool = setBool;
     s.setFloat = setFloat;
     s.setInt = setInt;
@@ -141,7 +141,7 @@ static void setFloat(Shader *self,const char* name, float value){
     glUniform1f(glGetUniformLocation(self->ID,name),value);    
 }
 
-static void delete(Shader *self){
+static void destroy(Shader *self){
     glDeleteProgram(self->ID);
 }
 
